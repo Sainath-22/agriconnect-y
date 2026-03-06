@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rating System Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 28px;
+    }
+    .link-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+    }
+    .link-section h2 {
+      color: #667eea;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .link-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .link-group:last-child {
+      margin-bottom: 0;
+    }
+    .url-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .url-box {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #333;
+      word-break: break-all;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .url-box a {
+      color: #667eea;
+      text-decoration: none;
+      flex: 1;
+      font-weight: 600;
+    }
+    .url-box a:hover {
+      text-decoration: underline;
+    }
+    .copy-btn {
+      padding: 6px 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .copy-btn:hover {
+      background: #5568d3;
+    }
+    .note {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .success {
+      background: #d4edda;
+      border: 1px solid #28a745;
+      color: #155724;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .step {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      padding: 15px;
+      background: #f0f7ff;
+      border-radius: 8px;
+    }
+    .step-number {
+      background: #667eea;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-content {
+      flex: 1;
+    }
+    .step-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .step-desc {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .test-section {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid #28a745;
+      margin-top: 30px;
+    }
+    .test-section h2 {
+      color: #28a745;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .console-box {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+    .console-command {
+      color: #4ec9b0;
+      margin-bottom: 10px;
+    }
+    .console-output {
+      color: #ce9178;
+      margin-left: 10px;
+      margin-bottom: 10px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      color: #666;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⭐ Rating System - Quick Links</h1>
+
+    <div class="success">
+      ✅ <strong>Server Status:</strong> Running at http://localhost:5000
+    </div>
+
+    <div class="note">
+      <strong>⚠️ Important:</strong> DO NOT use `/public/` in the URL! The correct URLs are shown below.
+    </div>
+
+    <!-- Rating Form -->
+    <div class="link-section">
+      <h2>1️⃣ Rate a Farmer</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Fill out a rating form for any farmer</p>
+      <div class="url-label">URL:</div>
+      <div class="url-box">
+        <a href="http://localhost:5000/rate-farmer.html" target="_blank">http://localhost:5000/rate-farmer.html</a>
+        <button class="copy-btn" onclick="copyText('http://localhost:5000/rate-farmer.html')">Copy</button>
+      </div>
+      <div style="margin-top: 15px;">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <div class="step-title">Enter farmer username</div>
+            <div class="step-desc">Try: <strong>revanth</strong>, <strong>pavan</strong>, or <strong>rajesh</strong></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <div class="step-title">Select 1-5 stars</div>
+            <div class="step-desc">Click on the stars to rate</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <div class="step-title">Add product name & review</div>
+            <div class="step-desc">Optional - add details about your experience</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <div class="step-title">Submit!</div>
+            <div class="step-desc">Click "✅ Submit Rating" button</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Farmer Ratings -->
+    <div class="link-section">
+      <h2>2️⃣ View Farmer Ratings & Profile</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">See all ratings and reviews for a farmer</p>
+      <div class="link-group">
+        <div class="url-label">View Revanth's Profile:</div>
+        <div class="url-box">
+          <a href="http://localhost:5000/farmer-profile-view.html?username=revanth" target="_blank">http://localhost:5000/farmer-profile-view.html?username=revanth</a>
+          <button class="copy-btn" onclick="copyText('http://localhost:5000/farmer-profile-view.html?username=revanth')">Copy</button>
+        </div>
+      </div>
+      <div class="link-group" style="margin-top: 10px;">
+        <div class="url-label">View Other Farmer:</div>
+        <div class="url-box">
+          <a href="http://localhost:5000/farmer-profile-view.html?username=pavan" target="_blank">http://localhost:5000/farmer-profile-view.html?username=pavan</a>
+          <button class="copy-btn" onclick="copyText('http://localhost:5000/farmer-profile-view.html?username=pavan')">Copy</button>
+        </div>
+      </div>
+      <div style="margin-top: 15px; padding: 12px; background: white; border-radius: 6px; border-left: 3px solid #ffc107;">
+        <strong>Tip:</strong> Replace <code>revanth</code> with any farmer's username to view their ratings
+      </div>
+    </div>
+
+    <!-- Manage Ratings -->
+    <div class="link-section">
+      <h2>3️⃣ Manage My Ratings</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">View, edit, or delete your submitted ratings</p>
+      <div class="url-label">URL:</div>
+      <div class="url-box">
+        <a href="http://localhost:5000/my-ratings.html" target="_blank">http://localhost:5000/my-ratings.html</a>
+        <button class="copy-btn" onclick="copyText('http://localhost:5000/my-ratings.html')">Copy</button>
+      </div>
+      <div style="margin-top: 15px; padding: 12px; background: white; border-radius: 6px; border-left: 3px solid #28a745;">
+        <strong>Note:</strong> You must be logged in to access this page
+      </div>
+    </div>
+
+    <!-- Test with API -->
+    <div class="test-section">
+      <h2>🧪 Test with Browser Console</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 13px;">Open DevTools (F12) and run these commands in the Console tab</p>
+      
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #333;">Get Farmer by Username:</strong>
+        <div class="console-box">
+          <div class="console-command">fetch('/api/user/by-username/revanth')
+  .then(r => r.json())
+  .then(d => console.log('Farmer:', d))</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #333;">View Farmer's Ratings:</strong>
+        <div class="console-box">
+          <div class="console-command">// After getting farmerId from above
+fetch('/api/ratings/farmer/FARMER_ID_HERE')
+  .then(r => r.json())
+  .then(d => console.log('Ratings:', d))</div>
+        </div>
+      </div>
+
+      <div>
+        <strong style="color: #333;">Get My Ratings:</strong>
+        <div class="console-box">
+          <div class="console-command">fetch('/api/my-ratings', {credentials: 'include'})
+  .then(r => r.json())
+  .then(d => console.log('My Ratings:', d))</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <strong>Rating System Status:</strong> ✅ All Features Active<br>
+      Server: http://localhost:5000 | Database: ✅ Connected
+    </footer>
+  </div>
+
+  <script>
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert('Copied: ' + text);
+    }
+  </script>
+</body>
+</html>

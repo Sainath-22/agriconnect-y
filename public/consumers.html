@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📦 Consumers Dashboard | Green Fields</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #1E8562;
+      --secondary: #4ABDAC;
+      --accent: #f0f9f5;
+      --surface: #ffffff;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e0f7ef, #c8ffe0, #b3f5d0, #8fe9c0);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+      color: #333;
+    }
+
+    @keyframes gradientMove {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    aside.sidebar {
+      width: 250px;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 20px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+    }
+
+    aside.sidebar h2 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--secondary);
+    }
+
+    aside.sidebar nav a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    aside.sidebar nav a:hover,
+    aside.sidebar nav a.active {
+      background: var(--secondary);
+      color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    aside.sidebar small {
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    header {
+      margin-left: 250px;
+      background: var(--surface);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      border-bottom: 3px solid var(--secondary);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logout-btn {
+      background: var(--secondary);
+      color: var(--primary);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: var(--primary);
+      color: var(--surface);
+      transform: scale(1.05);
+    }
+
+    /* Main */
+    main {
+      flex: 1;
+      margin-left: 250px;
+      padding: 40px;
+    }
+
+    /* Make headings centered (same as before) */
+    h1,
+    h2 {
+      color: var(--primary);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    /* ===============================
+   UPDATED: Stats Row → Flex layout
+   (matches your second CSS block)
+   =============================== */
+    .stats-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    /* Stat Card stays same colors */
+    .stat-card {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 18px;
+      flex: 1;
+      min-width: 200px;
+      box-shadow: var(--shadow);
+      border-left: 6px solid var(--secondary);
+      transition: all 0.4s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(107, 66, 38, 0.25);
+    }
+
+    .stat-card h3 {
+      font-size: 1em;
+      color: #6b4226;
+    }
+
+    .stat-card .value {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: var(--secondary);
+      text-shadow: 0 0 6px rgba(163, 193, 74, 0.5);
+    }
+
+    /* ===============================
+   UPDATED: Recent Orders Grid
+   (matches your second CSS block)
+   =============================== */
+    #recentOrders {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    /* Converted to the same style as recent-grid but keeping your colours */
+    .recent-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      border: 2px solid #f2e8cf;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .recent-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 6px 20px rgba(107, 66, 38, 0.25);
+    }
+
+    .recent-card img {
+      width: 100%;
+      height: 160px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-bottom: 12px;
+    }
+
+    .recent-card h4 {
+      font-size: 1.1em;
+      color: #6b4226;
+      text-align: center;
+    }
+
+    .recent-card p,
+    .recent-card small {
+      text-align: center;
+      font-size: 14px;
+      color: #444;
+    }
+
+    /* Optional Category Badge if you use one */
+    .category-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--secondary);
+      color: #2f2f1f;
+      padding: 4px 10px;
+      font-size: 0.8em;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <aside class="sidebar">
+    <div>
+      <h2>Green Fields</h2>
+      <nav>
+        <a href="consumers.html" class="active">Dashboard</a>
+        <a href="consumer-profile.html">Profile</a>
+        <a href="orders.html">My Orders</a>
+        <a href="buyers.html">Buy Products</a>
+      </nav>
+    </div>
+    <div><small>&copy; 2025 Green Fields</small></div>
+  </aside>
+
+  <div style="flex:1;">
+    <header>
+      <div><b>Consumer Dashboard</b></div>
+      <div>
+        <button class="logout-btn" id="logoutBtn"><a href="login.html">Logout</a></button>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- Chart removed here -->
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <h3>Total Orders</h3>
+          <div class="value" id="totalOrders">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Spent</h3>
+          <div class="value" id="totalSpent">₹0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Favorite Category</h3>
+          <div class="value" id="favCategory">-</div>
+        </div>
+      </div>
+
+      <h2>Recent Orders</h2>
+      <div id="recentOrders">
+        <p style="text-align:center; color:#888;">Loading recent orders...</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Chat Section -->
+  <div id="chat-container" style="position: fixed; bottom: 0; right: 0; width: 300px; background: #fff; border: 1px solid #ccc; border-radius: 8px; display: none;">
+    <div id="chat-header" style="background: #4CAF50; color: #fff; padding: 10px; cursor: pointer;">
+      Chat
+    </div>
+    <div id="chat-body" style="padding: 10px; height: 300px; overflow-y: auto;">
+      <div id="chat-messages"></div>
+    </div>
+    <div id="chat-input" style="padding: 10px;">
+      <input type="text" id="message-input" placeholder="Type a message..." style="width: 80%; padding: 5px;">
+      <button id="send-message" style="padding: 5px 10px;">Send</button>
+    </div>
+  </div>
+
+  <!-- JS remains unchanged exactly as you wrote -->
+  <script>
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    logoutBtn.onclick = () => {
+      fetch("http://localhost:5000/logout", { method: "POST", credentials: "include" })
+        .then(() => window.location.href = "login.html");
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadConsumerData();
+    });
+
+    async function loadConsumerData() {
+      try {
+        const resOrders = await fetch("/orders", { credentials: "include" });
+        const orders = await resOrders.json();
+
+        const resProducts = await fetch("/products", { credentials: "include" });
+        const products = await resProducts.json();
+
+        let totalSpent = 0;
+        const categoryTotals = {};
+
+        orders.forEach(o => {
+          const p = products.find(prod => prod.name === o.productName) || {};
+          o.productDetails = p;
+
+          totalSpent += p.price || 0;
+
+          const cat = p.category?.trim() || "Other";
+          categoryTotals[cat] = (categoryTotals[cat] || 0) + (p.price || 0);
+        });
+
+        document.getElementById("totalOrders").textContent = orders.length;
+        document.getElementById("totalSpent").textContent = `₹${totalSpent}`;
+        document.getElementById("favCategory").textContent =
+          Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+
+        const container = document.getElementById("recentOrders");
+        container.innerHTML = "";
+        if (!orders.length) {
+          container.innerHTML = "<p style='text-align:center; color:#888;'>No orders yet.</p>";
+        } else {
+          orders.slice(0, 6).forEach(o => {
+            const p = o.productDetails || {};
+            const card = document.createElement("div");
+            card.className = "recent-card";
+            card.style.cursor = "pointer";
+            card.innerHTML = `
+              <img src="${p.image || 'https://via.placeholder.com/150'}" alt="${p.name || 'Product'}" style="cursor: pointer;">
+              <h4>${p.name || o.productName || "Unnamed Product"}</h4>
+              <p><b>₹${p.price || 0}</b> • ${p.category || "Other"}</p>
+              <small>Ordered on: ${new Date(o.createdAt).toLocaleDateString()}</small>
+              <a href="farmer-profile-view.html?username=${encodeURIComponent(p.sellerName || 'Unknown')}" 
+                 style="display: block; margin-top: 8px; color: #2e7d32; text-decoration: none; font-weight: 600; font-size: 12px;">
+                👤 View Seller Profile →
+              </a>
+            `;
+            container.appendChild(card);
+          });
+        }
+
+        // Chart code remains in JS but no chart div exists — no issue.
+
+      } catch (err) {
+        console.error("Error loading dashboard:", err);
+        document.getElementById("recentOrders").innerHTML =
+          "<p style='text-align:center; color:#f55;'>Failed to load dashboard.</p>";
+      }
+    }
+  </script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <script>
+
+    let username = "";
+    let role = "";
+
+    fetch("/api/me", { credentials: "include" })
+      .then(res => res.json())
+      .then(user => {
+        username = user.username;
+        role = user.role;
+
+      });
+
+    // Load chat partners when chat opens
+
+    const chatContainer = document.getElementById("chat-container");
+    const chatHeader = document.getElementById("chat-header");
+    const chatBody = document.getElementById("chat-body");
+    const chatMessages = document.getElementById("chat-messages");
+    const messageInput = document.getElementById("message-input");
+    const sendMessageButton = document.getElementById("send-message");
+
+    chatHeader.addEventListener("click", () => {
+      chatContainer.style.display = chatContainer.style.display === "none" ? "block" : "none";
+    });
+
+    const socket = io("http://localhost:5000");
+
+    socket.on("receiveMessage", ({ from, message }) => {
+      const messageElement = document.createElement("div");
+      messageElement.textContent = `${from}: ${message}`;
+      chatMessages.appendChild(messageElement);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    });
+
+    sendMessageButton.addEventListener("click", () => {
+      const message = messageInput.value;
+      if (message.trim()) {
+        socket.emit("sendMessage", { from: username, to: "farmer", message });
+        const messageElement = document.createElement("div");
+        messageElement.textContent = `You: ${message}`;
+        chatMessages.appendChild(messageElement);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        messageInput.value = "";
+      }
+    });
+  </script>
+
+</body>
+
+</html>

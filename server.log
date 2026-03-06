@@ -1,0 +1,4 @@
+[dotenv@17.2.3] injecting env (1) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+🚀 Server running at http://localhost:5000
+✅ MongoDB connected
+^C

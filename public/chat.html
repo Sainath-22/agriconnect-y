@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>💬 Chat with Farmers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f0f9f5;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: #1E8562;
+      color: white;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .user {
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .user:hover, .user.active {
+      background: #4ABDAC;
+      color: #1E8562;
+    }
+
+    /* Chat area */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+
+    .msg {
+      margin-bottom: 8px;
+    }
+
+    .me {
+      text-align: right;
+      color: #1E8562;
+      font-weight: 600;
+    }
+
+    .input-box {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #4ABDAC;
+      color: #1E8562;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LEFT: FARMERS LIST -->
+  <div class="sidebar">
+    <h2>Farmers</h2>
+    <div id="users"></div>
+  </div>
+
+  <!-- RIGHT: CHAT -->
+  <div class="chat-area">
+    <h2 id="chatWith">Select a farmer</h2>
+    <div id="messages"></div>
+
+    <div class="input-box">
+      <input id="chatInput" placeholder="Type message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+const socket = io("http://localhost:5000", { 
+  withCredentials: true,
+  reconnectionDelay: 1000,
+  reconnection: true,
+  reconnectionDelayMax: 5000,
+  reconnectionAttempts: 5
+});
+
+let myUsername = "";
+let selectedUser = "";
+
+// Socket connection events
+socket.on("connect", () => {
+  console.log("✅ Connected to chat server");
+});
+
+socket.on("connect_error", (error) => {
+  console.error("❌ Connection error:", error);
+});
+
+socket.on("disconnect", () => {
+  console.log("⚠️ Disconnected from chat server");
+});
+
+// DOM
+const usersDiv = document.getElementById("users");
+const messagesDiv = document.getElementById("messages");
+const chatInput = document.getElementById("chatInput");
+const sendBtn = document.getElementById("sendBtn");
+const chatWith = document.getElementById("chatWith");
+
+// Get logged-in user
+fetch("/api/me", { credentials: "include" })
+  .then(res => res.json())
+  .then(user => {
+    myUsername = user.username.toLowerCase();
+    socket.emit("register", { username: user.username.toLowerCase(), role: user.role });
+    loadChatPartners();
+  })
+  .catch(err => {
+    console.error("❌ Failed to get user info:", err);
+  });
+
+// Load farmers (chat partners)
+async function loadChatPartners() {
+  const res = await fetch("/api/chat/partners", {
+    credentials: "include"
+  });
+
+  const data = await res.json();
+
+  usersDiv.innerHTML = "";
+
+  if (!data.users || data.users.length === 0) {
+    usersDiv.innerHTML = "<p>No chat partners found</p>";
+    return;
+  }
+
+  data.users.forEach(u => {
+    const div = document.createElement("div");
+    div.className = "user";
+    div.textContent = u;
+    div.onclick = () => selectUser(u, div);
+    usersDiv.appendChild(div);
+  });
+}
+
+
+async function selectUser(user, el) {
+  selectedUser = user;
+  chatWith.textContent = "Chat with " + user;
+
+  document.querySelectorAll(".user").forEach(u => u.classList.remove("active"));
+  el.classList.add("active");
+
+  try {
+    const res = await fetch(`/api/chat/${user.toLowerCase()}`, {
+      credentials: "include"
+    });
+    
+    if (!res.ok) {
+      console.error(`❌ Chat fetch failed: ${res.status}`);
+      messagesDiv.innerHTML = "<p>Failed to load messages</p>";
+      return;
+    }
+    
+    const data = await res.json();
+    console.log(`✅ Loaded ${data.length} messages`);
+
+    messagesDiv.innerHTML = \"\";
+    if (data.length === 0) {
+      messagesDiv.innerHTML = \"<p style='text-align:center;color:#999;'>No messages yet. Start the conversation!</p>\";
+    } else {
+      data.forEach(m => addMessage(m.from, m.message));
+    }
+  } catch (err) {
+    console.error(\"❌ Error loading chat:\", err);
+    messagesDiv.innerHTML = \"<p>Error loading messages</p>\";
+  }
+}
+
+// Send message
+sendBtn.onclick = () => {
+  if (!selectedUser || !chatInput.value.trim()) return;
+
+  const messageText = chatInput.value;
+  
+  socket.emit("sendMessage", {
+    from: myUsername,
+    to: selectedUser.toLowerCase(),
+    message: messageText
+  });
+
+  console.log(`📤 Message sent to ${selectedUser}: ${messageText}`);
+  addMessage("Me", messageText);
+  chatInput.value = "";
+};
+
+// Receive message - only show if it's from the currently selected user
+socket.on("receiveMessage", ({ from, message }) => {
+  console.log(`📥 Received message from ${from}: ${message}, Currently chatting with: ${selectedUser}`);
+  
+  if (from.toLowerCase() === selectedUser.toLowerCase()) {
+    addMessage(from, message);
+    console.log(`✅ Message displayed from ${from}`);
+  } else {
+    console.log(`⚠️ Ignoring message from ${from} because currently chatting with ${selectedUser}`);
+  }
+});
+
+function addMessage(sender, text) {
+  const div = document.createElement("div");
+  div.className = "msg " + (sender === "Me" ? "me" : "");
+  div.textContent = sender + ": " + text;
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  console.log(`Added message: ${sender}: ${text}`);
+}
+</script>
+
+</body>
+</html>

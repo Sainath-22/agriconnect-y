@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Farmers Dashboard | Overview</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+      #productChart {
+        max-width: 100%;
+      }
+    </style>
+  <style>
+    :root {
+  --primary: #6b4226;
+  --secondary: #a3c14a;
+  --accent: #fffaf0;
+  --surface: #ffffff;
+  --gray: #f2e8cf;
+  --highlight: #ffb347;
+  --shadow: 0 2px 12px rgba(107, 66, 38, 0.15);
+}
+
+/* 🌈 Animated gradient background */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  color: #3b2f2f;
+  background: linear-gradient(-45deg, #f9f5e3, #f6e3c5, #cdebb0, #f4f1ec);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+  overflow-x: hidden;
+  transition: 0.3s;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Sidebar */
+aside.sidebar {
+  width: 250px;
+  background: rgba(107, 66, 38, 0.95);
+  color: #fffaf0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  backdrop-filter: blur(6px);
+  border-right: 3px solid var(--secondary);
+  animation: fadeInLeft 1s ease;
+}
+
+@keyframes fadeInLeft {
+  from { transform: translateX(-40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+aside.sidebar h2 {
+  margin-bottom: 24px;
+  color: var(--highlight);
+  text-shadow: 0 0 6px rgba(255,180,70,0.7);
+}
+
+aside.sidebar a {
+  display: block;
+  padding: 12px 16px;
+  color: #fffaf0;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+aside.sidebar a:hover,
+aside.sidebar a.active {
+  background: var(--secondary);
+  color: #2f2f1f;
+  transform: translateX(4px);
+}
+
+/* Header */
+header {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+  border-bottom: 3px solid var(--highlight);
+  animation: fadeInDown 1s ease;
+}
+
+@keyframes fadeInDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+header .top-controls button {
+  margin-left: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  background: var(--highlight);
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+header .top-controls button:hover {
+  background: #f9a825;
+  transform: scale(1.05);
+}
+
+/* Main */
+main {
+  flex: 1;
+  padding: 30px;
+  animation: fadeIn 1.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stats Cards */
+.stats-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 14px;
+  padding: 18px;
+  flex: 1;
+  min-width: 200px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  border-left: 6px solid var(--secondary);
+  transition: all 0.4s ease;
+  backdrop-filter: blur(5px);
+}
+
+.stat-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(107, 66, 38, 0.25);
+}
+
+.stat-card h3 {
+  font-size: 1em;
+  color: #6b4226;
+}
+
+.stat-card .value {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: var(--secondary);
+  text-shadow: 0 0 6px rgba(163,193,74,0.5);
+}
+
+/* Recent Items */
+.recent-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recent-item {
+  background: rgba(255,255,255,0.85);
+  padding: 14px 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow);
+  border-left: 5px solid var(--highlight);
+  transition: 0.3s;
+}
+
+.recent-item:hover {
+  transform: scale(1.03);
+  background: #fffbe8;
+}
+
+/* Recommendation Section */
+#recommendation-section {
+  background: rgba(255,255,255,0.92);
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  margin-top: 40px;
+  backdrop-filter: blur(6px);
+  border-left: 6px solid var(--secondary);
+  animation: fadeInUp 1.2s ease;
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+#recommendation-section input {
+  width: 80%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: 0.3s;
+}
+
+#recommendation-section input:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 6px rgba(163,193,74,0.4);
+}
+
+#recommendation-section button {
+  background: var(--secondary);
+  color: #2f2f1f;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#recommendation-section button:hover {
+  background: #90b33d;
+  transform: scale(1.05);
+}
+
+/* Dark Mode Styling */
+body.dark-mode {
+  background: linear-gradient(-45deg, #2b1d0e, #3b2a1a, #4a3925, #2f2212);
+  background-size: 400% 400%;
+  color: #f3e8d1;
+  animation: gradientShift 15s ease infinite;
+}
+
+body.dark-mode .stat-card,
+body.dark-mode .recent-item,
+body.dark-mode header,
+body.dark-mode main {
+  background: rgba(47, 34, 18, 0.9);
+  color: #f3e8d1;
+}
+
+body.dark-mode .stat-card .value {
+  color: #ffb84d;
+}
+
+body.dark-mode aside.sidebar {
+  background: rgba(59, 42, 26, 0.95);
+}
+
+body.dark-mode aside.sidebar a.active {
+  background: #a3c14a;
+  color: #1b1a11;
+}
+
+/* Responsive */
+@media(max-width:900px) {
+  aside.sidebar {
+    width: 60px;
+    padding: 12px;
+  }
+  aside.sidebar h2 { display: none; }
+  main { padding: 20px; }
+  .stats-row { flex-direction: column; }
+}
+
+/* 🌾 Enhanced Grid Layout for Recent Products */
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.recent-grid .recent-item {
+  background: linear-gradient(145deg, #ffffff, #f9f5e3);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 2px solid #f2e8cf;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.recent-grid .recent-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 20px rgba(107, 66, 38, 0.25);
+}
+
+.recent-grid .recent-item img {
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+.recent-grid .recent-item strong {
+  font-size: 1.1em;
+  color: #6b4226;
+  margin-bottom: 6px;
+}
+
+.recent-grid .recent-item small {
+  color: #555;
+  font-size: 0.9em;
+}
+
+/* Category Badge */
+.recent-grid .category-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--secondary);
+  color: #2f2f1f;
+  padding: 4px 10px;
+  font-size: 0.8em;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Hover glow for category badge */
+.recent-grid .recent-item:hover .category-badge {
+  background: var(--highlight);
+  color: #fffaf0;
+}
+#recommendation-section {
+    display: none !important;
+}
+
+
+  </style>
+</head>
+
+<body>
+  <aside class="sidebar">
+    <div>
+      <h2>🌾 Green Fields</h2>
+      <nav>
+        <a href="farmers.html" class="active">Home</a>
+        <a href="profile.html">Profile</a>
+        <a href="farmer-history.html">Orders</a>
+       <a href="sellers.html">Add Product</a>
+
+<a href="farmer-orders.html"> Received Orders</a>
+ <a href="recommendations.html">Recommendations</a>
+</nav>
+    </div>
+    <div><small>&copy; 2025 Green Valley Farm</small></div>
+  </aside>
+
+  <div style="flex:1;">
+    <header>
+      <div>Farmers Dashboard</div>
+      <div class="top-controls">
+        
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <main>
+
+      <h2 style="margin-bottom:20px;">Overview</h2>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <h3>Total Products</h3>
+          <div class="value" id="totalProducts">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Active Orders</h3>
+          <div class="value" id="activeOrders">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Earnings</h3>
+          <div class="value" id="totalEarnings">$0</div>
+        </div>
+      </div>
+
+      <!-- Quick Add Product -->
+      <div style="background:rgba(255,255,255,0.92); padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin:20px 0;">
+        <h3 style="margin-top:0; color:var(--primary);">📦 Quick Add Product</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <input type="text" id="quickProductName" placeholder="Product name" style="padding:8px; border:1px solid #ddd; border-radius:6px; font-family: 'Poppins', sans-serif;">
+          <input type="text" id="quickProductCategory" placeholder="Category (e.g., Vegetables)" style="padding:8px; border:1px solid #ddd; border-radius:6px; font-family: 'Poppins', sans-serif;">
+          <input type="number" id="quickProductPrice" placeholder="Price" style="padding:8px; border:1px solid #ddd; border-radius:6px; font-family: 'Poppins', sans-serif;">
+          <input type="number" id="quickProductQty" placeholder="Quantity" style="padding:8px; border:1px solid #ddd; border-radius:6px; font-family: 'Poppins', sans-serif;">
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button onclick="quickAddProduct()" style="flex:1; padding:10px; background:var(--secondary); color:#2f2f1f; border:none; border-radius:6px; cursor:pointer; font-weight:600; transition:0.3s;">✅ Add Product</button>
+          <button onclick="clearQuickForm()" style="flex:1; padding:10px; background:#ddd; color:#333; border:none; border-radius:6px; cursor:pointer; font-weight:600; transition:0.3s;">Clear</button>
+        </div>
+        <small id="quickStatus" style="display:block; margin-top:8px; color:#666;"></small>
+      </div>
+
+      <h2 style="margin:30px 0 15px;">Recent Products</h2>
+      <ul class="recent-grid" id="historyList">
+        <li style="text-align:center; color:#888;">Loading...</li>
+      </ul>
+
+
+      <section id="recommendation-section" style="margin: 40px auto; text-align: center;">
+        <h2>🌾 Crop Recommendation System</h2>
+        <p>Select your soil type, season, and region to get AI-based crop suggestions.</p>
+
+        <form id="recommend-form" style="display:flex; flex-direction:column; gap:10px; align-items:center;">
+          <input type="text" id="soilType" placeholder="Enter Soil Type (e.g., Loamy, Sandy, Clay)" required />
+          <input type="text" id="season" placeholder="Enter Season (e.g., Summer, Rainy, Winter)" required />
+          <input type="text" id="region" placeholder="Enter Region (e.g., South, North, West)" required />
+          <button type="submit" class="btn">Get Recommendations</button>
+        </form>
+
+        <div id="recommendation-output" style="margin-top:20px;">
+          <p><strong>Recommended Crops:</strong></p>
+          <ul id="crop-list"></ul>
+        </div>
+
+        <div id="product-output" style="margin-top:20px;">
+          <p><strong>Related Products:</strong></p>
+          <ul id="product-list"></ul>
+        </div>
+      </section>
+
+      <!-- Product Analysis Chart -->
+      <section id="analysis-section" style="display: block;">
+        <h2 style="margin:30px 0 15px;">📊 Product Analysis</h2>
+        
+        <!-- Top Products by Sales/Quantity -->
+        <div style="background:rgba(255,255,255,0.92); padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.08); margin-bottom:20px;">
+          <h3 style="margin-top:0; color:var(--primary);">🏆 Top Products by Quantity Sold</h3>
+          <div style="position: relative; height: 350px; width: 100%;">
+            <canvas id="topProductsChart"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    // ================== QUICK ADD PRODUCT ==================
+    function clearQuickForm() {
+      document.getElementById("quickProductName").value = "";
+      document.getElementById("quickProductCategory").value = "";
+      document.getElementById("quickProductPrice").value = "";
+      document.getElementById("quickProductQty").value = "";
+      document.getElementById("quickStatus").textContent = "";
+    }
+
+    async function quickAddProduct() {
+      const name = document.getElementById("quickProductName").value.trim();
+      const category = document.getElementById("quickProductCategory").value.trim();
+      const price = document.getElementById("quickProductPrice").value;
+      const quantity = document.getElementById("quickProductQty").value;
+      const statusEl = document.getElementById("quickStatus");
+
+      if (!name || !price || !quantity) {
+        statusEl.textContent = "❌ Please fill in all fields";
+        statusEl.style.color = "#dc3545";
+        return;
+      }
+
+      try {
+        statusEl.textContent = "⏳ Adding product...";
+        statusEl.style.color = "#666";
+
+        const res = await fetch("/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            name,
+            category: category || "Uncategorized",
+            price: parseFloat(price),
+            quantity: parseFloat(quantity),
+            description: "Added from dashboard"
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+
+        const data = await res.json();
+        statusEl.textContent = "✅ Product added successfully! Refreshing chart...";
+        statusEl.style.color = "#28a745";
+        
+        clearQuickForm();
+        
+        // Reload products and chart
+        setTimeout(() => {
+          loadHistory();
+        }, 500);
+
+      } catch (err) {
+        console.error("Error adding product:", err);
+        statusEl.textContent = `❌ Error: ${err.message}`;
+        statusEl.style.color = "#dc3545";
+      }
+    }
+
+    // ================== LOAD PRODUCT HISTORY ==================
+
+    async function loadHistory() {
+      try {
+        console.log("🔄 Loading products...");
+        const historyList = document.getElementById("historyList");
+        historyList.innerHTML = `<li style="text-align:center; color:#888;">⏳ Loading your products...</li>`;
+
+        const res = await fetch("/my-products", { credentials: "include" });
+        if (!res.ok) {
+          console.error("❌ Fetch failed with status:", res.status);
+          historyList.innerHTML = `<li style="text-align:center; color:#d32f2f;">❌ Failed to load products (Status: ${res.status})</li>`;
+          return;
+        }
+
+        const products = await res.json();
+        console.log("✅ Successfully fetched products:", products);
+        console.log(`📊 Total: ${products.length} products`);
+
+        // Update stats
+        document.getElementById("totalProducts").textContent = products.length;
+        document.getElementById("activeOrders").textContent = products.filter(p => p.quantity > 0).length;
+        const totalEarnings = products.reduce((a, p) => a + ((p.price || 0) * (p.quantity || 0)), 0);
+        document.getElementById("totalEarnings").textContent = "$" + totalEarnings.toFixed(2);
+
+        historyList.innerHTML = "";
+        if (!products || !Array.isArray(products) || products.length === 0) {
+          console.warn("⚠️ No products found or invalid data");
+          historyList.innerHTML = `<li style="text-align:center; color:#888;">No products found. Use the 'Quick Add Product' form to add products.</li>`;
+          // Still try to render empty chart
+          renderTopProductsChart([]);
+          return;
+        }
+
+        // Display recent products
+        products.slice(0, 6).forEach(p => {
+          const li = document.createElement("li");
+          li.classList.add("recent-item");
+
+          const hasCategory = p.category && p.category.trim() !== "";
+          const desc = p.description || "No description available";
+          const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "Unknown date";
+
+          li.innerHTML = `
+            ${hasCategory ? `<span class="category-badge">${p.category}</span>` : ""}
+            <img src="${p.image || 'https://via.placeholder.com/250x160?text=No+Image'}" alt="${p.name}">
+            <strong>${p.name}</strong>
+            <small>💰 Price: $${p.price} | 📦 Quantity: ${p.quantity}</small>
+            <small>📅 Added on: ${date}</small>
+
+            <p style="font-size:0.9em; margin-top:6px; color:#555;">${desc}</p>
+          `;
+          historyList.appendChild(li);
+        });
+
+        // Render charts with real data
+        renderTopProductsChart(products);
+        console.log("✅ Dashboard loaded successfully!");
+      } catch (err) {
+        console.error("❌ Error loading products:", err);
+        const historyList = document.getElementById("historyList");
+        historyList.innerHTML = `<li style="text-align:center; color:#d32f2f;">❌ Error loading products: ${err.message}</li>`;
+      }
+    }
+
+    function renderChart(products) {
+      try {
+        const canvas = document.getElementById("productChart");
+        if (!canvas) {
+          console.error("❌ Chart canvas element not found!");
+          return;
+        }
+
+        // If no products, show empty state
+        if (!products || !Array.isArray(products) || products.length === 0) {
+          console.warn("⚠️ No products to display in chart");
+          canvas.parentElement.innerHTML = "<p style='color:#888; text-align:center; padding:40px;'>No products added yet. Add products to see the analysis.</p>";
+          return;
+        }
+
+        // Strategy 1: Try to group by category (if most products have categories)
+        const productsWithCategory = products.filter(p => p.category && p.category.trim() !== "");
+        
+        let labels, data, chartTitle;
+
+        if (productsWithCategory.length > 0) {
+          // Group by category
+          const categories = [...new Set(productsWithCategory.map(p => p.category))];
+          const counts = categories.map(cat => productsWithCategory.filter(p => p.category === cat).length);
+          
+          labels = categories;
+          data = counts;
+          chartTitle = "Products per Category";
+          console.log("📊 Chart mode: BY CATEGORY", { categories, counts });
+        } else {
+          // Strategy 2: Group by product name (each product is unique)
+          labels = products.map(p => p.name || "Unknown");
+          data = products.map(() => 1); // each product = 1
+          chartTitle = "Products Added";
+          console.log("📊 Chart mode: BY PRODUCT NAME", { labels, data });
+        }
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          console.error("❌ Unable to get 2D context from canvas");
+          return;
+        }
+
+        // Destroy existing chart if it exists
+        if (window.productChartInstance) {
+          window.productChartInstance.destroy();
+        }
+
+        const colors = ["#a3c14a", "#ffb347", "#6b4226", "#cdebb0", "#f4f1ec", "#e8b4b8", "#ff6b6b", "#4ecdc4"];
+        
+        window.productChartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: chartTitle,
+              data: data,
+              borderRadius: 6,
+              backgroundColor: colors.slice(0, labels.length).map((c, i) => c),
+              borderColor: "#6b4226",
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: labels.length > 5 ? 'y' : 'x', // horizontal bar if too many products
+            plugins: {
+              legend: {
+                display: true,
+                position: "top",
+                labels: {
+                  font: { size: 12, family: "'Poppins', sans-serif" },
+                  color: "#6b4226"
+                }
+              },
+              title: {
+                display: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 },
+                grid: { color: "rgba(0,0,0,0.05)" }
+              },
+              x: {
+                grid: { display: false }
+              }
+            }
+          }
+        });
+        
+        console.log("✅ Chart rendered successfully!");
+        console.log(`📈 Total products: ${products.length}, Labels: ${labels.length}, Data: ${data}`);
+      } catch (err) {
+        console.error("❌ Error rendering chart:", err);
+      }
+    }
+
+    // ================== RENDER TOP PRODUCTS BY QUANTITY CHART ==================
+    function renderTopProductsChart(products) {
+      try {
+        const canvas = document.getElementById("topProductsChart");
+        if (!canvas) {
+          console.error("❌ Top products chart canvas not found!");
+          return;
+        }
+
+        // If no products, show empty state
+        if (!products || !Array.isArray(products) || products.length === 0) {
+          console.warn("⚠️ No products to display in top products chart");
+          canvas.parentElement.innerHTML = "<p style='color:#888; text-align:center; padding:40px;'>No products added yet. Use the 'Quick Add Product' form above to add products.</p>";
+          return;
+        }
+
+        // Sort products by quantity (highest first) and get top 10
+        const topProducts = products
+          .filter(p => p.quantity && p.quantity > 0)
+          .sort((a, b) => b.quantity - a.quantity)
+          .slice(0, 10);
+
+        if (topProducts.length === 0) {
+          canvas.parentElement.innerHTML = "<p style='color:#888; text-align:center; padding:40px;'>No products with quantity data available. Add products to see analysis.</p>";
+          return;
+        }
+
+        const labels = topProducts.map(p => p.name || "Unknown");
+        const quantities = topProducts.map(p => p.quantity || 0);
+        const prices = topProducts.map(p => p.price || 0);
+        const totalValues = topProducts.map((p, i) => (quantities[i] * prices[i]).toFixed(2));
+
+        console.log("🏆 Top Products Chart Data:", { labels, quantities, prices, totalValues });
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          console.error("❌ Unable to get 2D context from canvas");
+          return;
+        }
+
+        // Destroy existing chart if it exists
+        if (window.topProductsChartInstance) {
+          window.topProductsChartInstance.destroy();
+        }
+
+        const colors = ["#a3c14a", "#ffb347", "#6b4226", "#cdebb0", "#f4f1ec", "#e8b4b8", "#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4"];
+        
+        // Create gradient colors for better visualization
+        const gradientColors = colors.slice(0, labels.length);
+        
+        window.topProductsChartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Quantity Available",
+                data: quantities,
+                borderRadius: 8,
+                backgroundColor: gradientColors,
+                borderColor: "#6b4226",
+                borderWidth: 2,
+                yAxisID: 'y'
+              },
+              {
+                label: "Total Value ($)",
+                data: totalValues,
+                type: "line",
+                borderColor: "#ff6b6b",
+                backgroundColor: "rgba(255, 107, 107, 0.1)",
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                yAxisID: 'y1',
+                pointRadius: 5,
+                pointBackgroundColor: "#ff6b6b",
+                pointBorderColor: "#fff",
+                pointBorderWidth: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+              legend: {
+                display: true,
+                position: "top",
+                labels: {
+                  font: { size: 12, family: "'Poppins', sans-serif", weight: "600" },
+                  color: "#6b4226",
+                  padding: 15
+                }
+              },
+              tooltip: {
+                backgroundColor: "rgba(0,0,0,0.8)",
+                padding: 12,
+                titleFont: { size: 13, weight: "bold" },
+                bodyFont: { size: 12 },
+                callbacks: {
+                  label: function(context) {
+                    if (context.dataset.label === "Total Value ($)") {
+                      return context.dataset.label + ": $" + context.parsed.y;
+                    }
+                    return context.dataset.label + ": " + context.parsed.y + " units";
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                type: "linear",
+                display: true,
+                position: "left",
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Quantity (Units)",
+                  font: { size: 12, weight: "bold" }
+                },
+                grid: { color: "rgba(0,0,0,0.05)" }
+              },
+              y1: {
+                type: "linear",
+                display: true,
+                position: "right",
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "Total Value ($)",
+                  font: { size: 12, weight: "bold" }
+                },
+                grid: { drawOnChartArea: false }
+              },
+              x: {
+                grid: { display: false }
+              }
+            }
+          }
+        });
+        
+        console.log("✅ Top Products Chart rendered successfully!");
+        console.log(`📈 Showing ${topProducts.length} products with total value: $${totalValues.reduce((a, b) => parseFloat(a) + parseFloat(b), 0).toFixed(2)}`);
+      } catch (err) {
+        console.error("❌ Error rendering top products chart:", err);
+      }
+    }
+
+  
+
+    // ================== LOGOUT ==================
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      alert('Logout successful.');
+      window.location.href = 'login.html';
+    });
+
+    // ================== SIDEBAR TAB SWITCH ==================
+    function showTab(id, btn) {
+      document.querySelectorAll("aside.sidebar a").forEach(a => a.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+
+      document.querySelectorAll("main section").forEach(sec => sec.style.display = "none");
+      const selected = document.getElementById(id);
+      if (selected) selected.style.display = "block";
+      else console.warn(`Section with id "${id}" not found`);
+    }
+
+    // ================== AI CROP RECOMMENDATION ==================
+    const form = document.getElementById("recommend-form");
+    const cropList = document.getElementById("crop-list");
+    const productList = document.getElementById("product-list");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const soilType = document.getElementById("soilType").value.trim();
+      const season = document.getElementById("season").value.trim();
+      const region = document.getElementById("region").value.trim();
+
+      cropList.innerHTML = "<li>⏳ Fetching recommendations...</li>";
+      productList.innerHTML = "";
+
+      try {
+        // 🌾 Ask backend for crop suggestions
+        const res = await fetch("http://localhost:4000/api/recommend/crop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ soilType, season, region }),
+        });
+
+        const data = await res.json();
+        const crops = Array.isArray(data.crops) ? data.crops : [];
+
+        if (!crops.length) {
+          cropList.innerHTML = "<li>❌ No crops found for given inputs.</li>";
+          return;
+        }
+
+        // 🪴 Display crop list
+        cropList.innerHTML = "";
+        for (const crop of crops) {
+          const li = document.createElement("li");
+          li.textContent = "🌿 " + crop;
+          cropList.appendChild(li);
+
+          // 🧠 Get AI Product Recommendations for each crop
+          const prodRes = await fetch(`http://localhost:4000/api/recommend/product/${crop}`);
+          const prodData = await prodRes.json();
+
+          if (prodData.products && prodData.products.length) {
+            const sourceLabel =
+              prodData.source === "database"
+                ? "🗄️ From Database"
+                : "🤖 From Gemini AI";
+
+            const header = document.createElement("h4");
+            header.textContent = `${sourceLabel} — Products for ${crop}`;
+            productList.appendChild(header);
+
+            // 🎨 Display products as cards
+            prodData.products.forEach((p) => {
+              const card = document.createElement("li");
+              card.style = `
+              background:#fffbe7;
+              border-radius:10px;
+              padding:10px;
+              margin:5px;
+              box-shadow:0 2px 8px rgba(0,0,0,0.1);
+              list-style:none;
+            `;
+              card.innerHTML = `
+              <strong>🛒 ${p.name}</strong><br>
+              <small>💰 Price: ${p.price || "N/A"}</small>
+            `;
+              productList.appendChild(card);
+            });
+          }
+        }
+      } catch (err) {
+        console.error("❌ Recommendation Fetch Error:", err);
+        cropList.innerHTML = "<li>⚠️ Error fetching recommendations.</li>";
+      }
+    });
+
+    // ================== LOAD FARMER ORDERS ==================
+async function fetchOrders() {
+  try {
+    const res = await fetch("/api/farmer/orders", {
+      method: "GET",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    const container = document.getElementById("ordersContainer");
+    container.innerHTML = "";
+
+    if (!data.success || data.orders.length === 0) {
+      container.innerHTML = "<p>No orders received yet.</p>";
+      return;
+    }
+
+    data.orders.forEach(order => {
+      const div = document.createElement("div");
+      div.className = "order-card";
+      div.innerHTML = `
+        <h3>${order.productName}</h3>
+        <p><strong>Buyer:</strong> ${order.buyerName}</p>
+        <p><strong>Email:</strong> ${order.buyerEmail}</p>
+        <p><strong>Phone:</strong> ${order.buyerPhone}</p>
+        <p><strong>Quantity:</strong> ${order.quantity}</p>
+        <p><strong>Address:</strong> ${order.address}</p>
+        <p><strong>Message:</strong> ${order.message || "—"}</p>
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Error fetching orders:", err);
+  }
+}
+
+fetchOrders();
+
+    window.onload = async () => {
+      console.log("🔄 Page loaded, initializing dashboard...");
+      try {
+        await loadHistory(); // your existing product list
+        console.log("✅ History loaded");
+      } catch (err) {
+        console.error("❌ Error loading history:", err);
+      }
+      
+      try {
+        await fetchOrders();  // new orders list
+        console.log("✅ Orders loaded");
+      } catch (err) {
+        console.error("❌ Error fetching orders:", err);
+      }
+    };
+
+    // Also call on DOMContentLoaded as backup
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("📄 DOM Content Loaded");
+      loadHistory().catch(err => console.error("Error in DOMContentLoaded:", err));
+    });
+
+
+  </script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<script>
+const socket = io("http://localhost:5000", { withCredentials: true });
+
+const username = localStorage.getItem("loggedInUser");
+const role = "seller"; // change to "farmer" in farmers.html
+
+socket.emit("register", { username, role });
+
+// Safely initialize chat elements with fallback
+const openChat = document.getElementById("openChat");
+const chatBox = document.getElementById("chatBox");
+const userList = document.getElementById("userList");
+const messages = document.getElementById("messages");
+const chatInput = document.getElementById("chatInput");
+const sendBtn = document.getElementById("sendBtn");
+const emojiBtn = document.getElementById("emojiBtn");
+const typing = document.getElementById("typing");
+
+if (openChat) {
+  openChat.onclick = () => {
+    if (chatBox) chatBox.style.display = chatBox.style.display === "none" ? "block" : "none";
+  };
+}
+
+socket.on("userList", users => {
+  if (userList) {
+    userList.innerHTML = "<option>Select User</option>";
+    users.filter(u => u.username !== username).forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u.username;
+      opt.textContent = `${u.username} (${u.role})`;
+      userList.appendChild(opt);
+    });
+  }
+});
+
+if (userList) {
+  userList.onchange = () => loadChatHistory(userList.value);
+}
+
+async function loadChatHistory(user) {
+  try {
+    const res = await fetch(`/api/chat/${user}`);
+    const data = await res.json();
+    if (messages) {
+      messages.innerHTML = "";
+      data.forEach(m => addMessage(m.from, m.message));
+    }
+    fetch(`/api/chat/read/${user}`, { method: "POST" });
+  } catch (err) {
+    console.error("Error loading chat history:", err);
+  }
+}
+
+if (sendBtn) {
+  sendBtn.onclick = () => {
+    if (userList && chatInput) {
+      socket.emit("sendMessage", {
+        from: username,
+        to: userList.value,
+        message: chatInput.value
+      });
+      addMessage("Me", chatInput.value);
+      chatInput.value = "";
+    }
+  };
+}
+
+socket.on("receiveMessage", ({ from, message }) => {
+  addMessage(from, message);
+});
+
+if (chatInput) {
+  chatInput.oninput = () => {
+    socket.emit("typing", { from: username, to: userList.value });
+  };
+}
+
+socket.on("showTyping", ({ from }) => {
+  if (typing) {
+    typing.textContent = `${from} is typing...`;
+    setTimeout(() => typing.textContent = "", 1000);
+  }
+});
+
+if (emojiBtn) {
+  emojiBtn.onclick = () => {
+    if (chatInput) chatInput.value += "😊";
+  };
+}
+
+function addMessage(sender, msg) {
+  if (messages) messages.innerHTML += `<p><b>${sender}:</b> ${msg}</p>`;
+}
+
+async function loadChatPartners() {
+  try {
+    const res = await fetch("/api/chat/partners", {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    if (userList) {
+      userList.innerHTML = "<option value=''>Select Buyer</option>";
+      data.users.forEach(username => {
+        const opt = document.createElement("option");
+        opt.value = username;
+        opt.textContent = username;
+        userList.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    console.error("Error loading chat partners:", err);
+  }
+}
+
+// Initialize on load
+if (openChat) {
+  openChat.onclick = () => {
+    if (chatBox) {
+      chatBox.style.display = chatBox.style.display === "none" ? "block" : "none";
+      if (chatBox.style.display === "block") {
+        loadChatPartners();
+      }
+    }
+  };
+}
+
+</script>
+
+</body>
+
+</html>  

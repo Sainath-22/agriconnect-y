@@ -1,0 +1,376 @@
+<!-- Payment Modal Component -->
+<div id="paymentModal" class="payment-modal" style="display: none;">
+  <div class="payment-modal-content">
+    <div class="payment-modal-header">
+      <h2>Select Payment Method</h2>
+      <button class="close-payment-modal" onclick="closePaymentModal()">&times;</button>
+    </div>
+
+    <div class="payment-modal-body">
+      <!-- Payment Amount Display -->
+      <div class="payment-amount-box">
+        <p class="label">Total Amount</p>
+        <p class="amount">₹<span id="paymentAmount">0</span></p>
+      </div>
+
+      <!-- Payment Methods -->
+      <div class="payment-methods">
+        <!-- UPI Section -->
+        <div class="payment-section">
+          <h3 class="section-title">💳 UPI Payment</h3>
+          <div class="payment-grid">
+            <button class="payment-btn upi-btn" onclick="selectUPI()">
+              <div class="payment-icon">📱</div>
+              <span>UPI</span>
+              <small>Direct Transfer</small>
+            </button>
+          </div>
+
+          <!-- UPI Input -->
+          <div id="upiForm" style="display: none; margin-top: 20px;">
+            <input type="text" id="upiId" placeholder="Enter your UPI ID (e.g., name@upi)" class="input-field">
+            <div id="upiAppsList" style="margin-top: 15px;">
+              <p style="font-size: 12px; color: #888; margin-bottom: 10px;">Available UPI Apps:</p>
+              <div class="upi-apps-grid">
+                <button class="upi-app-btn" onclick="redirectToUPIApp('phonepe')">
+                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%235002DC'/%3E%3Ctext x='50' y='60' text-anchor='middle' font-size='30' fill='white' font-weight='bold'%3EPP%3C/text%3E%3C/svg%3E" alt="PhonePe" class="upi-app-icon">
+                  <span>PhonePe</span>
+                </button>
+                <button class="upi-app-btn" onclick="redirectToUPIApp('googlepay')">
+                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234285F4'/%3E%3Ctext x='50' y='60' text-anchor='middle' font-size='20' fill='white' font-weight='bold'%3EGPay%3C/text%3E%3C/svg%3E" alt="Google Pay" class="upi-app-icon">
+                  <span>Google Pay</span>
+                </button>
+                <button class="upi-app-btn" onclick="redirectToUPIApp('paytm')">
+                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230066FF'/%3E%3Ctext x='50' y='60' text-anchor='middle' font-size='18' fill='white' font-weight='bold'%3EPayTM%3C/text%3E%3C/svg%3E" alt="PayTM" class="upi-app-icon">
+                  <span>PayTM</span>
+                </button>
+                <button class="upi-app-btn" onclick="redirectToUPIApp('whatsapp')">
+                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2325D366'/%3E%3Ctext x='50' y='60' text-anchor='middle' font-size='25' fill='white' font-weight='bold'%3EW%3C/text%3E%3C/svg%3E" alt="WhatsApp" class="upi-app-icon">
+                  <span>WhatsApp</span>
+                </button>
+              </div>
+            </div>
+            <button class="btn-submit" onclick="initiateUPIPayment()">Proceed with UPI</button>
+          </div>
+        </div>
+
+        <!-- Digital Wallets Section -->
+        <div class="payment-section">
+          <h3 class="section-title">🎯 Digital Wallets</h3>
+          <div class="payment-grid">
+            <button class="payment-btn phonepe-btn" onclick="initiatePhonePePayment()">
+              <div class="payment-icon">📱</div>
+              <span>PhonePe</span>
+              <small>Fast & Secure</small>
+            </button>
+            <button class="payment-btn googlepay-btn" onclick="initiateGooglePayPayment()">
+              <div class="payment-icon">💰</div>
+              <span>Google Pay</span>
+              <small>Instant Transfer</small>
+            </button>
+            <button class="payment-btn paytm-btn" onclick="initiatePayTMPayment()">
+              <div class="payment-icon">💳</div>
+              <span>PayTM</span>
+              <small>Popular Wallet</small>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bank Transfer Section -->
+        <div class="payment-section">
+          <h3 class="section-title">🏦 Bank Transfer</h3>
+          <div class="payment-grid">
+            <button class="payment-btn netbanking-btn" onclick="initiateNetBanking()">
+              <div class="payment-icon">🏦</div>
+              <span>Net Banking</span>
+              <small>All Banks</small>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Info -->
+      <div class="payment-info">
+        <p>✅ Your payment is secure and encrypted</p>
+        <p>✅ Direct transfer to farmer's account</p>
+        <p>✅ Transaction reference will be provided</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Payment Modal Styles */
+  .payment-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .payment-modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .payment-modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .payment-modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .close-payment-modal {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .close-payment-modal:hover {
+    transform: scale(1.2);
+  }
+
+  .payment-modal-body {
+    padding: 30px;
+  }
+
+  .payment-amount-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .payment-amount-box .label {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .payment-amount-box .amount {
+    margin: 10px 0 0 0;
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .payment-methods {
+    margin-bottom: 20px;
+  }
+
+  .payment-section {
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 15px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .payment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+
+  .payment-btn {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px 15px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+  }
+
+  .payment-btn:hover {
+    border-color: #667eea;
+    background: #f5f5ff;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+  }
+
+  .payment-btn .payment-icon {
+    font-size: 28px;
+  }
+
+  .payment-btn span {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .payment-btn small {
+    font-size: 11px;
+    color: #999;
+    font-weight: 400;
+  }
+
+  .upi-apps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .upi-app-btn {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+  }
+
+  .upi-app-btn:hover {
+    border-color: #667eea;
+    background: #f5f5ff;
+    transform: translateY(-2px);
+  }
+
+  .upi-app-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    transition: 0.3s;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  }
+
+  .payment-info {
+    background: #f0f8ff;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #555;
+  }
+
+  .payment-info p {
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 600px) {
+    .payment-modal-content {
+      width: 95%;
+    }
+
+    .payment-modal-body {
+      padding: 20px;
+    }
+
+    .payment-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .upi-apps-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .payment-modal-header h2 {
+      font-size: 20px;
+    }
+
+    .payment-amount-box .amount {
+      font-size: 28px;
+    }
+  }
+</style>
