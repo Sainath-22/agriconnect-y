@@ -154,7 +154,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: "mongodb://127.0.0.1:27017/greenfields",
+      mongoUrl: process.env.MONGO_URI,
     }),
     cookie: { maxAge: 1000 * 60 * 60 },
   })
@@ -162,7 +162,7 @@ app.use(
 
 // --------- MongoDB Connection ----------
 mongoose
-  .connect("mongodb://127.0.0.1:27017/greenfields")
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ Mongo error:", err));
 
