@@ -1288,6 +1288,9 @@ app.delete("/api/ratings/:ratingId", isAuthenticated, async (req, res) => {
     res.status(500).json({ error: "Failed to delete rating" });
   }
 });
+app.get("/", (req, res) => {
+  res.send("AgriConnect API is running ✅");
+});
 
 // ---------- START SERVER ----------
 server.listen(PORT, '0.0.0.0', () => {
