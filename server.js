@@ -18,15 +18,52 @@ dotenv.config();
 const Order = require("./models/Order");
 const ChatMessage = require("./models/ChatMessage");
 const Rating = require("./models/Rating");
+const axios = require("axios");
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const geminiKey = process.env.GEMINI_API_KEY?.trim();
+const groqKey = process.env.GROQ_API_KEY?.trim();
+const aiProvider = process.env.AI_PROVIDER?.trim()?.toLowerCase();
+
+function isValidGeminiKey(key) {
+  return typeof key === "string" && /^AIza[0-9A-Za-z_-]{35}$/.test(key);
+}
+
+function isValidGroqKey(key) {
+  return typeof key === "string" && /^gsk_[0-9A-Za-z]+$/.test(key);
+}
+
+const hasValidGeminiKey = isValidGeminiKey(geminiKey);
+const hasValidGroqKey = isValidGroqKey(groqKey);
+
+function getPreferredAIProvider() {
+  if (aiProvider === "gemini") {
+    return hasValidGeminiKey ? "gemini" : hasValidGroqKey ? "groq" : "none";
+  }
+  if (aiProvider === "groq") {
+    return hasValidGroqKey ? "groq" : hasValidGeminiKey ? "gemini" : "none";
+  }
+  if (hasValidGeminiKey) return "gemini";
+  if (hasValidGroqKey) return "groq";
+  return "none";
+}
+
+const selectedAIProvider = getPreferredAIProvider();
+
+if (selectedAIProvider === "gemini") {
+  console.log("✅ AI provider selected: Gemini");
+} else if (selectedAIProvider === "groq") {
+  console.log("✅ AI provider selected: Groq");
+} else {
+  console.warn("⚠️ No valid AI provider key found. AI assistant will use local fallback responses.");
+}
 
 
 
 // Initialize app
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -154,7 +191,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI,
+      mongoUrl: "mongodb://127.0.0.1:27017/greenfields",
     }),
     cookie: { maxAge: 1000 * 60 * 60 },
   })
@@ -162,7 +199,7 @@ app.use(
 
 // --------- MongoDB Connection ----------
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect("mongodb://127.0.0.1:27017/greenfields")
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ Mongo error:", err));
 
@@ -916,6 +953,142 @@ app.get("/products", async (req, res) => {
   }
 });
 
+// ---------- UPDATE PRODUCT (with price history tracking) ----------
+app.put("/products/:id", isAuthenticated, upload.single("image"), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, price, quantity, description, phone, contactEmail, category } = req.body;
+
+    // Get current product
+    const currentProduct = await Product.findById(id);
+    if (!currentProduct) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Check if price changed
+    const oldPrice = currentProduct.price;
+    const newPrice = parseFloat(price);
+    const priceChanged = oldPrice !== newPrice;
+
+    // Update product
+    const updateData = {
+      name: name || currentProduct.name,
+      price: newPrice,
+      quantity: quantity !== undefined ? quantity : currentProduct.quantity,
+      description: description !== undefined ? description : currentProduct.description,
+      phone: phone || currentProduct.phone,
+      contactEmail: contactEmail || currentProduct.contactEmail,
+      category: category || currentProduct.category
+    };
+
+    if (req.file) {
+      updateData.image = "/uploads/" + req.file.filename;
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+
+    // Track price change in history
+    if (priceChanged) {
+      const PriceHistory = require("./models/PriceHistory");
+      const priceHistory = new PriceHistory({
+        productId: id,
+        productName: updatedProduct.name,
+        farmerId: updatedProduct.farmer,
+        oldPrice: oldPrice,
+        newPrice: newPrice,
+        category: updatedProduct.category,
+        reason: "Manual update"
+      });
+      await priceHistory.save();
+      console.log("📊 Price change tracked:", { oldPrice, newPrice, productId: id });
+    }
+
+    res.json({ success: true, message: "✅ Product updated successfully!", product: updatedProduct });
+  } catch (err) {
+    console.error("❌ Error updating product:", err);
+    res.status(500).json({ success: false, message: "Error updating product" });
+  }
+});
+
+// ---------- PRICE PREDICTION API ----------
+app.post("/api/predict-price", async (req, res) => {
+  try {
+    const {
+      product_name,
+      category,
+      current_price,
+      market_demand = "medium",
+      weather_impact = "none",
+      days_ahead = 30
+    } = req.body;
+
+    // Validate required fields
+    if (!product_name || !category || !current_price) {
+      return res.status(400).json({
+        success: false,
+        message: "Product name, category, and current price are required"
+      });
+    }
+
+    // Call Python ML API
+    const pythonResponse = await axios.post('http://localhost:5002/predict', {
+      product_name,
+      category,
+      current_price: parseFloat(current_price),
+      market_demand,
+      weather_impact,
+      days_ahead: parseInt(days_ahead)
+    }, {
+      timeout: 10000 // 10 second timeout
+    });
+
+    res.json({
+      success: true,
+      prediction: pythonResponse.data
+    });
+
+  } catch (error) {
+    console.error("❌ Price prediction error:", error.message);
+
+    if (error.code === 'ECONNREFUSED') {
+      return res.status(503).json({
+        success: false,
+        message: "Price prediction service is currently unavailable. Please try again later."
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Error predicting price",
+      error: error.response?.data?.error || error.message
+    });
+  }
+});
+
+// ---------- GET PRICE HISTORY FOR A PRODUCT ----------
+app.get("/api/price-history/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const PriceHistory = require("./models/PriceHistory");
+
+    const history = await PriceHistory.find({ productId })
+      .sort({ date: -1 })
+      .limit(50); // Last 50 price changes
+
+    res.json({
+      success: true,
+      history: history
+    });
+
+  } catch (error) {
+    console.error("❌ Error fetching price history:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching price history"
+    });
+  }
+});
+
 // ---------- GET USER INFO (for role detection) ----------
 app.get("/api/user", async (req, res) => {
   try {
@@ -1091,6 +1264,31 @@ app.put("/api/orders/:id/status", async (req, res) => {
 });
 
 
+function getLocalAIFallback(message) {
+  const text = (message || "").toLowerCase();
+
+  if (text.includes("crop") || text.includes("plant")) {
+    return "For crop planning, choose varieties suited to your season and soil. In India, rice and wheat are good for wet soil, while millets and pulses suit dry areas. Rotate crops to protect soil health.";
+  }
+  if (text.includes("soil") || text.includes("fertilizer") || text.includes("manure")) {
+    return "Test your soil if possible. For acidic soil, add lime; for alkaline soil, add organic matter. Use compost or well-rotted manure to improve texture and fertility.";
+  }
+  if (text.includes("weather") || text.includes("rain") || text.includes("monsoon")) {
+    return "Watch local weather reports and prepare for rain with good drainage. In dry weather, water crops early morning or late evening to reduce evaporation.";
+  }
+  if (text.includes("pest") || text.includes("disease") || text.includes("insect")) {
+    return "Inspect plants regularly and remove damaged leaves. Use neem oil or homemade soap spray for many pests, and practice crop rotation to reduce disease pressure.";
+  }
+  if (text.includes("irrig") || text.includes("water")) {
+    return "Irrigate deeply and less frequently rather than light daily watering. This encourages deep roots and improves drought resistance.";
+  }
+  if (text.includes("market") || text.includes("price") || text.includes("sell")) {
+    return "Check local market prices before harvest and compare buyers. Direct sales to consumers or cooperatives can improve profit margins.";
+  }
+
+  return "I'm AgriConnect AI. I can help with farming advice on crops, soil, weather, pests, irrigation, and market planning. Please ask a specific farming question.";
+}
+
 // ---------- AI CHATBOT ENDPOINT ----------
 app.post("/api/chatbot", async (req, res) => {
   try {
@@ -1100,47 +1298,122 @@ app.post("/api/chatbot", async (req, res) => {
       return res.status(400).json({ reply: "Message is required" });
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are AgriConnect AI, a helpful farming assistant. Provide practical farming advice about crops, soil, weather, pests, irrigation, and farming best practices. Keep responses concise and actionable.",
-          },
-          {
-            role: "user",
-            content: message,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    });
+    const runGemini = async () => {
+      const model = new GoogleGenerativeAI(geminiKey).getGenerativeModel({ model: "gemini-1.5-flash" });
+      const prompt = `You are AgriConnect AI, a helpful farming assistant. Provide practical farming advice about crops, soil, weather, pests, irrigation, and farming best practices. Keep responses concise and actionable.\n\nUser: ${message}`;
+      const result = await model.generateContent(prompt);
+      return result.response?.text?.() || getLocalAIFallback(message);
+    };
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("Groq API error:", error);
-      return res.json({
-        reply: "I'm AgriConnect AI. Ask me about crops, soil, weather, pests, irrigation, or any farming challenge!",
-      });
+    const runGroq = async () => {
+      const response = await axios.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          model: "llama-3.1-8b-instant",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are AgriConnect AI, a helpful farming assistant. Provide practical farming advice about crops, soil, weather, pests, irrigation, and farming best practices. Keep responses concise and actionable.",
+            },
+            {
+              role: "user",
+              content: message,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 500,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${groqKey}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data?.choices?.[0]?.message?.content || getLocalAIFallback(message);
+    };
+
+    if (selectedAIProvider === "gemini") {
+      if (!hasValidGeminiKey) {
+        console.warn("⚠️ GEMINI_API_KEY is set but invalid. Falling back to Groq or local responses.");
+      } else {
+        try {
+          const reply = await runGemini();
+          return res.json({ reply });
+        } catch (geminiError) {
+          console.error("❌ Gemini API error:", geminiError?.message || geminiError, geminiError?.response?.data || "no response data");
+          if (hasValidGroqKey) {
+            console.warn("⚠️ Falling back from Gemini to Groq due to Gemini error.");
+            try {
+              const reply = await runGroq();
+              return res.json({ reply });
+            } catch (groqError) {
+              console.error("❌ Groq fallback error:", groqError?.response?.data || groqError?.message || groqError);
+            }
+          }
+          return res.json({ reply: getLocalAIFallback(message) });
+        }
+      }
     }
 
-    const data = await response.json();
-    const reply = data.choices[0]?.message?.content || "Unable to generate response";
+    if (selectedAIProvider === "groq") {
+      if (!hasValidGroqKey) {
+        console.warn("⚠️ GROQ_API_KEY is set but invalid. Falling back to Gemini or local responses.");
+      } else {
+        try {
+          const reply = await runGroq();
+          return res.json({ reply });
+        } catch (groqError) {
+          console.error("❌ Groq API error:", groqError?.response?.status, groqError?.response?.data || groqError?.message || groqError);
+          if (hasValidGeminiKey) {
+            console.warn("⚠️ Falling back from Groq to Gemini due to Groq error.");
+            try {
+              const reply = await runGemini();
+              return res.json({ reply });
+            } catch (geminiFallbackError) {
+              console.error("❌ Gemini fallback error:", geminiFallbackError?.response?.data || geminiFallbackError?.message || geminiFallbackError);
+            }
+          }
+          return res.json({ reply: getLocalAIFallback(message) });
+        }
+      }
+    }
 
-    res.json({ reply });
+    if (selectedAIProvider === "none") {
+      if (hasValidGeminiKey) {
+        try {
+          const reply = await runGemini();
+          return res.json({ reply });
+        } catch (e) {
+          console.error("❌ Gemini API error (no provider selected):", e?.message || e, e?.response?.data || "no response data");
+          if (hasValidGroqKey) {
+            try {
+              const reply = await runGroq();
+              return res.json({ reply });
+            } catch (groqErr) {
+              console.error("❌ Groq API error (fallback):", groqErr?.response?.data || groqErr?.message || groqErr);
+            }
+          }
+          return res.json({ reply: getLocalAIFallback(message) });
+        }
+      }
+      if (hasValidGroqKey) {
+        try {
+          const reply = await runGroq();
+          return res.json({ reply });
+        } catch (groqError) {
+          console.error("❌ Groq API error (no provider selected):", groqError?.response?.data || groqError?.message || groqError);
+          return res.json({ reply: getLocalAIFallback(message) });
+        }
+      }
+    }
+
+    console.error("❌ Chatbot configuration error: no valid AI provider key found.");
+    return res.json({ reply: getLocalAIFallback(message) });
   } catch (error) {
-    console.error("❌ Chatbot error:", error.message);
-    res.json({
-      reply: "I'm AgriConnect AI, your farming assistant! Ask me anything about farming - crops, soil, weather, pests, irrigation, and more!",
-    });
+    console.error("❌ Chatbot error:", error?.message || error, error?.response?.data || "no response data");
+    res.json({ reply: getLocalAIFallback(req.body?.message || "") });
   }
 });
 
@@ -1288,11 +1561,8 @@ app.delete("/api/ratings/:ratingId", isAuthenticated, async (req, res) => {
     res.status(500).json({ error: "Failed to delete rating" });
   }
 });
-app.get("/", (req, res) => {
-  res.send("AgriConnect API is running ✅");
-});
 
 // ---------- START SERVER ----------
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });  

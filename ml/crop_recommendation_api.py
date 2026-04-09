@@ -1,11 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
+import os
 
 app = Flask(__name__)
 CORS(app)  # ✅ allow frontend to access API
 
-model_data = joblib.load("crop_model.pkl")
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, "crop_model.pkl")
+
+model_data = joblib.load(model_path)
 model = model_data["model"]
 le_soil = model_data["le_soil"]
 le_season = model_data["le_season"]

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price Prediction - AgriConnect</title>
+  <link rel="stylesheet" href="login.css">
+  <style>
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+      line-height: 1.6;
+      padding-top: 95px;
+    }
+
+    /* Enhanced Navbar */
+    .navbar {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 1rem 0;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      min-height: 72px;
+    }
+
+    .navbar .logo {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-left: 2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      margin-right: 2rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-links a:hover {
+      color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .nav-links a.active {
+      color: #667eea;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+      font-weight: 600;
+    }
+
+    .nav-links a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    .nav-links a:hover::before {
+      left: 100%;
+    }
+
+    /* Main Container */
+    .prediction-container {
+      max-width: 900px;
+      margin: 40px auto 50px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      animation: slideInUp 0.8s ease-out;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Typography */
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 3rem;
+      font-weight: 400;
+    }
+
+    /* Form Styling */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      border: 2px solid #e1e8ed;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: #fafbfc;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #667eea;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .form-group input::placeholder {
+      color: #aab0b6;
+    }
+
+    /* Beautiful Button */
+    .predict-btn {
+      width: 100%;
+      padding: 1.2rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .predict-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .predict-btn:hover::before {
+      left: 100%;
+    }
+
+    .predict-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .predict-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .predict-btn:disabled {
+      background: linear-gradient(135deg, #bdc3c7, #95a5a6);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 4px 15px rgba(189, 195, 199, 0.3);
+    }
+
+    .predict-btn:disabled::before {
+      display: none;
+    }
+
+    /* Loading Animation */
+    .loading {
+      text-align: center;
+      color: #667eea;
+      font-weight: 500;
+      font-style: italic;
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .loading::before {
+      content: '';
+      width: 20px;
+      height: 20px;
+      border: 2px solid #e1e8ed;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Result Card */
+    .result-card {
+      margin-top: 3rem;
+      padding: 2.5rem;
+      background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(102, 126, 234, 0.1);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+      display: none;
+      animation: fadeInScale 0.6s ease-out;
+    }
+
+    .result-card.show {
+      display: block;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .result-card h3 {
+      color: #333;
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    /* Price Comparison */
+    .price-comparison {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2rem 0;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .price-item {
+      text-align: center;
+      flex: 1;
+    }
+
+    .price-item h4 {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .price-display {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #333;
+      margin: 0.5rem 0;
+    }
+
+    .price-display.current {
+      color: #667eea;
+    }
+
+    .price-display.predicted {
+      color: #764ba2;
+    }
+
+    /* Trend Indicator */
+    .trend-container {
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .trend-indicator {
+      font-size: 1.5rem;
+      font-weight: 600;
+      padding: 1rem 2rem;
+      border-radius: 25px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    .trend-indicator.up {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      color: white;
+    }
+
+    .trend-indicator.down {
+      background: linear-gradient(135deg, #f87171, #ef4444);
+      color: white;
+    }
+
+    .trend-indicator.neutral {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: white;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Factors Section */
+    .factors {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 2rem;
+      border-radius: 15px;
+      margin-top: 2rem;
+      border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .factors h4 {
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .factors ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .factors li {
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .factors li:last-child {
+      border-bottom: none;
+    }
+
+    .factor-label {
+      font-weight: 500;
+      color: #555;
+    }
+
+    .factor-value {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    /* Messages */
+    .error {
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+      color: #dc2626;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border-left: 4px solid #dc2626;
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    .success {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      color: #16a34a;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border-left: 4px solid #16a34a;
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      animation: bounceIn 0.6s ease-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Mobile Navbar */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0.8rem 0;
+      }
+
+      .navbar .logo {
+        font-size: 1.4rem;
+        margin-left: 1rem;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 70px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 70px);
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding-top: 2rem;
+        gap: 2rem;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-links.active {
+        left: 0;
+      }
+
+      .nav-links a {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        width: 80%;
+        text-align: center;
+      }
+
+      /* Mobile Menu Button */
+      .mobile-menu-btn {
+        display: block;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #667eea;
+        cursor: pointer;
+        margin-right: 1rem;
+      }
+
+      .navbar .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-menu-btn {
+        display: none;
+      }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    }
+  </style>
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+      <div class="logo">🌾 AgriConnect</div>
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="index.html">Home</a>
+        <a href="blog.html">Blog & Insights</a>
+        <a href="howitworks.html">How It Works</a>
+        <a href="about.html">About Us</a>
+        <a href="price-predictor.html" class="active">Price Prediction</a>
+        <a href="chatbot.html">AI Assistant</a>
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="prediction-container">
+    <h1>📈 Price Prediction Tool</h1>
+    <p class="subtitle">Predict future prices of agricultural products using AI-powered analytics</p>
+
+    <form id="predictionForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="productName">Product Name</label>
+          <input type="text" id="productName" placeholder="e.g., Tomatoes, Rice, Wheat" required>
+        </div>
+
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="Vegetables">🥕 Vegetables</option>
+            <option value="Fruits">🍎 Fruits</option>
+            <option value="Grains">🌾 Grains</option>
+            <option value="Dairy">🥛 Dairy</option>
+            <option value="Meat">🥩 Meat</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="currentPrice">Current Price (₹ per kg)</label>
+          <input type="number" id="currentPrice" placeholder="e.g., 50" min="0" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+          <label for="marketDemand">Market Demand</label>
+          <select id="marketDemand">
+            <option value="low">📉 Low</option>
+            <option value="medium" selected>📊 Medium</option>
+            <option value="high">📈 High</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="weatherImpact">Weather Impact</label>
+          <select id="weatherImpact">
+            <option value="none" selected>☀️ None</option>
+            <option value="low">🌤️ Low</option>
+            <option value="medium">🌦️ Medium</option>
+            <option value="high">⛈️ High</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="daysAhead">Prediction Period (Days)</label>
+          <input type="number" id="daysAhead" value="30" min="1" max="365" required>
+        </div>
+      </div>
+
+      <button type="submit" class="predict-btn" id="predictBtn">
+        🔮 Predict Future Price
+      </button>
+    </form>
+
+    <div id="loading" class="loading" style="display: none;">
+      Analyzing market data and weather patterns...
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="success" class="success" style="display: none;"></div>
+
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="success" class="success" style="display: none;"></div>
+
+    <div id="resultCard" class="result-card">
+      <h3>📊 Prediction Results</h3>
+
+      <div class="price-comparison">
+        <div class="price-item">
+          <h4>Current Price</h4>
+          <div class="price-display current" id="currentPriceDisplay">₹0</div>
+        </div>
+
+        <div class="trend-container">
+          <div class="trend-indicator" id="trendIndicator">
+            <span id="trendIcon">➡️</span>
+            <span id="changePercent">0%</span>
+          </div>
+        </div>
+
+        <div class="price-item">
+          <h4>Predicted Price</h4>
+          <div class="price-display predicted" id="predictedPriceDisplay">₹0</div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 2rem 0; color: #666;">
+        <strong>Prediction Date:</strong> <span id="predictionDate">-</span> |
+        <strong>Days Ahead:</strong> <span id="daysAheadDisplay">-</span>
+      </div>
+
+      <div class="factors">
+        <h4>🎯 Market Factors Considered</h4>
+        <ul id="factorsList">
+          <li><span class="factor-label">Season:</span> <span class="factor-value" id="seasonValue">-</span></li>
+          <li><span class="factor-label">Market Demand:</span> <span class="factor-value" id="demandValue">-</span></li>
+          <li><span class="factor-label">Weather Impact:</span> <span class="factor-value" id="weatherValue">-</span></li>
+          <li><span class="factor-label">Price Change:</span> <span class="factor-value" id="changeValue">-</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('predictionForm');
+    const predictBtn = document.getElementById('predictBtn');
+    const loading = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
+    const successDiv = document.getElementById('success');
+    const resultCard = document.getElementById('resultCard');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Get form data
+      const formData = {
+        product_name: document.getElementById('productName').value.trim(),
+        category: document.getElementById('category').value,
+        current_price: parseFloat(document.getElementById('currentPrice').value),
+        market_demand: document.getElementById('marketDemand').value,
+        weather_impact: document.getElementById('weatherImpact').value,
+        days_ahead: parseInt(document.getElementById('daysAhead').value)
+      };
+
+      // Show loading
+      predictBtn.disabled = true;
+      predictBtn.textContent = '🔄 Predicting...';
+      loading.style.display = 'block';
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      resultCard.classList.remove('show');
+
+      try {
+        const response = await fetch('/api/predict-price', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          displayResults(data.prediction);
+          successDiv.textContent = '✅ Price prediction completed successfully!';
+          successDiv.style.display = 'block';
+        } else {
+          throw new Error(data.message || 'Prediction failed');
+        }
+
+      } catch (error) {
+        console.error('Prediction error:', error);
+        errorDiv.textContent = `❌ ${error.message}`;
+        errorDiv.style.display = 'block';
+      } finally {
+        predictBtn.disabled = false;
+        predictBtn.textContent = '🔮 Predict Future Price';
+        loading.style.display = 'none';
+      }
+    });
+
+    function displayResults(prediction) {
+      // Update price displays
+      document.getElementById('currentPriceDisplay').textContent = `₹${prediction.current_price}`;
+      document.getElementById('predictedPriceDisplay').textContent = `₹${prediction.predicted_price}`;
+
+      // Update trend indicator
+      const trendIndicator = document.getElementById('trendIndicator');
+      const changePercent = document.getElementById('changePercent');
+      const trendIcon = document.getElementById('trendIcon');
+
+      const change = prediction.change_percentage;
+      changePercent.textContent = `${change > 0 ? '+' : ''}${change}%`;
+
+      if (change > 5) {
+        trendIndicator.className = 'trend-indicator up';
+        trendIcon.textContent = '📈';
+      } else if (change < -5) {
+        trendIndicator.className = 'trend-indicator down';
+        trendIcon.textContent = '📉';
+      } else {
+        trendIndicator.className = 'trend-indicator neutral';
+        trendIcon.textContent = '➡️';
+      }
+
+      // Update prediction details
+      document.getElementById('predictionDate').textContent = prediction.prediction_date || new Date(Date.now() + prediction.days_ahead * 24 * 60 * 60 * 1000).toLocaleDateString();
+      document.getElementById('daysAheadDisplay').textContent = prediction.days_ahead;
+
+      // Update factors
+      document.getElementById('seasonValue').textContent = prediction.factors.season;
+      document.getElementById('demandValue').textContent = prediction.factors.market_demand;
+      document.getElementById('weatherValue').textContent = prediction.factors.weather_impact;
+      document.getElementById('changeValue').textContent = `₹${prediction.price_change || (prediction.predicted_price - prediction.current_price).toFixed(2)} (${change}%)`;
+
+      // Show result card
+      resultCard.classList.add('show');
+    }
+
+    // Load available categories on page load
+    async function loadCategories() {
+      try {
+        const response = await fetch('http://localhost:5002/categories');
+        if (response.ok) {
+          const data = await response.json();
+          const categorySelect = document.getElementById('category');
+          // Categories are already hardcoded, but we could dynamically populate if needed
+        }
+      } catch (error) {
+        console.log('Could not load categories from ML service');
+      }
+    }
+
+    loadCategories();
+
+    // Mobile menu toggle
+    function toggleMobileMenu() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const navLinks = document.getElementById('navLinks');
+      const mobileBtn = document.querySelector('.mobile-menu-btn');
+
+      if (!navLinks.contains(e.target) && !mobileBtn.contains(e.target)) {
+        navLinks.classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>

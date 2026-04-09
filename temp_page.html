@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price Prediction - AgriConnect</title>
+  <link rel="stylesheet" href="login.css">
+  <style>
+    .prediction-container {
+      max-width: 800px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e8ed;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #27ae60;
+    }
+
+    .predict-btn {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s;
+    }
+
+    .predict-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .predict-btn:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-card {
+      margin-top: 30px;
+      padding: 25px;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-radius: 10px;
+      border-left: 5px solid #27ae60;
+      display: none;
+    }
+
+    .result-card.show {
+      display: block;
+    }
+
+    .price-display {
+      font-size: 24px;
+      font-weight: bold;
+      color: #27ae60;
+      margin: 10px 0;
+    }
+
+    .trend-indicator {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .factors {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 15px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #7f8c8d;
+      font-style: italic;
+    }
+
+    .error {
+      color: #e74c3c;
+      background: #fdf2f2;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #e74c3c;
+      margin-top: 20px;
+    }
+
+    .success {
+      color: #27ae60;
+      background: #f2fdf2;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #27ae60;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="logo">🌾 AgriConnect</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="blog.html">Blog & Insights</a>
+      <a href="howitworks.html">How It Works</a>
+      <a href="about.html">About Us</a>
+      <a href="price-predictor.html" class="active">Price Prediction</a>
+      <a href="chatbot.html">AI Assistant</a>
+      <a href="login.html">Login</a>
+    </div>
+  </div>
+
+  <div class="prediction-container">
+    <h1 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">
+      📈 Price Prediction Tool
+    </h1>
+    <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">
+      Predict future prices of agricultural products using AI-powered analytics
+    </p>
+
+    <form id="predictionForm">
+      <div class="form-group">
+        <label for="productName">Product Name</label>
+        <input type="text" id="productName" placeholder="e.g., Tomatoes, Rice, Wheat" required>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" required>
+          <option value="">Select Category</option>
+          <option value="Vegetables">Vegetables</option>
+          <option value="Fruits">Fruits</option>
+          <option value="Grains">Grains</option>
+          <option value="Dairy">Dairy</option>
+          <option value="Meat">Meat</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="currentPrice">Current Price (₹ per kg)</label>
+        <input type="number" id="currentPrice" placeholder="e.g., 50" min="0" step="0.01" required>
+      </div>
+
+      <div class="form-group">
+        <label for="marketDemand">Market Demand</label>
+        <select id="marketDemand">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="weatherImpact">Weather Impact</label>
+        <select id="weatherImpact">
+          <option value="none" selected>None</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="daysAhead">Prediction Period (Days)</label>
+        <input type="number" id="daysAhead" value="30" min="1" max="365" required>
+      </div>
+
+      <button type="submit" class="predict-btn" id="predictBtn">
+        🔮 Predict Future Price
+      </button>
+    </form>
+
+    <div id="loading" class="loading" style="display: none;">
+      Analyzing market data and weather patterns...
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="success" class="success" style="display: none;"></div>
+
+    <div id="resultCard" class="result-card">
+      <h3 style="margin-top: 0; color: #2c3e50;">📊 Prediction Results</h3>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+        <div>
+          <strong>Current Price:</strong><br>
+          <span class="price-display" id="currentPriceDisplay">₹0</span>
+        </div>
+        <div style="text-align: center;">
+          <div id="trendIcon">➡️</div>
+          <div id="changePercent">0%</div>
+        </div>
+        <div>
+          <strong>Predicted Price:</strong><br>
+          <span class="price-display" id="predictedPriceDisplay">₹0</span>
+        </div>
+      </div>
+
+      <div class="trend-indicator" id="trendIndicator">Analyzing trend...</div>
+
+      <div style="margin: 20px 0;">
+        <strong>Prediction Date:</strong> <span id="predictionDate">-</span><br>
+        <strong>Days Ahead:</strong> <span id="daysAheadDisplay">-</span>
+      </div>
+
+      <div class="factors">
+        <strong>Market Factors Considered:</strong>
+        <ul id="factorsList">
+          <li>Loading...</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('predictionForm');
+    const predictBtn = document.getElementById('predictBtn');
+    const loading = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
+    const successDiv = document.getElementById('success');
+    const resultCard = document.getElementById('resultCard');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Get form data
+      const formData = {
+        product_name: document.getElementById('productName').value.trim(),
+        category: document.getElementById('category').value,
+        current_price: parseFloat(document.getElementById('currentPrice').value),
+        market_demand: document.getElementById('marketDemand').value,
+        weather_impact: document.getElementById('weatherImpact').value,
+        days_ahead: parseInt(document.getElementById('daysAhead').value)
+      };
+
+      // Show loading
+      predictBtn.disabled = true;
+      predictBtn.textContent = '🔄 Predicting...';
+      loading.style.display = 'block';
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      resultCard.classList.remove('show');
+
+      try {
+        const response = await fetch('/api/predict-price', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          displayResults(data.prediction);
+          successDiv.textContent = '✅ Price prediction completed successfully!';
+          successDiv.style.display = 'block';
+        } else {
+          throw new Error(data.message || 'Prediction failed');
+        }
+
+      } catch (error) {
+        console.error('Prediction error:', error);
+        errorDiv.textContent = `❌ ${error.message}`;
+        errorDiv.style.display = 'block';
+      } finally {
+        predictBtn.disabled = false;
+        predictBtn.textContent = '🔮 Predict Future Price';
+        loading.style.display = 'none';
+      }
+    });
+
+    function displayResults(prediction) {
+      // Update price displays
+      document.getElementById('currentPriceDisplay').textContent = `₹${prediction.current_price}`;
+      document.getElementById('predictedPriceDisplay').textContent = `₹${prediction.predicted_price}`;
+
+      // Update trend indicator
+      document.getElementById('trendIndicator').textContent = prediction.trend;
+      document.getElementById('changePercent').textContent = `${prediction.change_percentage > 0 ? '+' : ''}${prediction.change_percentage}%`;
+
+      // Update trend icon
+      const trendIcon = document.getElementById('trendIcon');
+      if (prediction.change_percentage > 5) {
+        trendIcon.textContent = '📈';
+      } else if (prediction.change_percentage < -5) {
+        trendIcon.textContent = '📉';
+      } else {
+        trendIcon.textContent = '➡️';
+      }
+
+      // Update prediction details
+      document.getElementById('predictionDate').textContent = prediction.prediction_date;
+      document.getElementById('daysAheadDisplay').textContent = prediction.days_ahead;
+
+      // Update factors list
+      const factorsList = document.getElementById('factorsList');
+      factorsList.innerHTML = `
+        <li><strong>Season:</strong> ${prediction.factors.season}</li>
+        <li><strong>Market Demand:</strong> ${prediction.factors.market_demand}</li>
+        <li><strong>Weather Impact:</strong> ${prediction.factors.weather_impact}</li>
+        <li><strong>Price Change:</strong> ₹${prediction.price_change} (${prediction.change_percentage}%)</li>
+      `;
+
+      // Show result card
+      resultCard.classList.add('show');
+    }
+
+    // Load available categories on page load
+    async function loadCategories() {
+      try {
+        const response = await fetch('http://localhost:5002/categories');
+        if (response.ok) {
+          const data = await response.json();
+          const categorySelect = document.getElementById('category');
+          // Categories are already hardcoded, but we could dynamically populate if needed
+        }
+      } catch (error) {
+        console.log('Could not load categories from ML service');
+      }
+    }
+
+    loadCategories();
+  </script>
+</body>
+</html>
