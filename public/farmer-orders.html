@@ -286,6 +286,8 @@
   </main>
 
   <script>
+
+    const API_URL = "https://agriconnect-y.onrender.com";
     async function fetchOrders() {
       const container = document.getElementById('ordersContainer');
       try {
@@ -361,7 +363,7 @@
             cancelBtn.textContent = "❌ Cancelled";
             document.getElementById(`status-${orderId}`).textContent = "Cancelled";
             try {
-              const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+              const response = await fetch(`${API_URL}/api/orders/${orderId}/status`, {
                 method: "PUT",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -457,9 +459,9 @@
 
     async function loadFarmerChatMessages() {
       try {
-        const res = await fetch(`/api/chat/${currentChatUser}`, {
-          credentials: "include"
-        });
+        const res = await fetch(`${API_URL}/api/chat/${currentChatUser}`, {
+  credentials: "include"
+});
 
         if (!res.ok) {
           console.error("Failed to load messages:", res.status);
@@ -514,7 +516,7 @@
 
     // Listen for incoming messages
     socket.on("receiveMessage", ({ from, message }) => {
-      if (from === currentChatUser && document.getElementById("chatModal").style.display === "flex") {
+      if (from === currentChatUser && document.getElementById("chatModal").style.display === "block") {
         loadFarmerChatMessages();
       }
     });

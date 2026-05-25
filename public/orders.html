@@ -860,13 +860,18 @@
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
-    const socket = io("http://localhost:5000", { withCredentials: true });
+    const API_URL = "https://agriconnect-y.onrender.com";
+const socket = io(API_URL, {
+  withCredentials: true
+});
     let currentChatUser = "";
     let currentProductName = "";
     let myUsername = "";
 
     // Get current user
-    fetch("/api/me", { credentials: "include" })
+    fetch(`${API_URL}/api/me`, {
+  credentials: "include"
+})
       .then(res => res.json())
       .then(user => {
         myUsername = user.username;
@@ -907,7 +912,7 @@
 
     async function loadChatMessages() {
       try {
-        const res = await fetch(`/api/chat/${currentChatUser}`, {
+        const res = await fetch(`${API_URL}/api/chat/${currentChatUser}`, {
           credentials: "include"
         });
 
