@@ -420,7 +420,7 @@
     let myUsername = "";
 
     // Get current user
-    fetch("${API_URL}/api/me", { credentials: "include" })
+    fetch(`${API_URL}/api/me`, { credentials: "include" })
       .then(res => res.json())
       .then(user => {
         myUsername = user.username;
