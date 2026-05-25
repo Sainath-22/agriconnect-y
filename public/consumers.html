@@ -303,7 +303,7 @@
 
   <!-- JS remains unchanged exactly as you wrote -->
   <script>
-
+const API_URL = "https://agriconnect-y.onrender.com";
     const logoutBtn = document.getElementById("logoutBtn");
     logoutBtn.onclick = () => {
       fetch(`${API_URL}/logout`, { method: "POST", credentials: "include" })
@@ -376,6 +376,8 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
   <script>
+
+    
 
     let username = "";
     let role = "";
