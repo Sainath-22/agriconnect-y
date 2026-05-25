@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "start:all": "concurrently \"node server.js\" \"python ml/crop_recommendation_api.py\" \"python ml/price_prediction_api.py\"",
+   // "start:all": "concurrently \"node server.js\" \"python ml/crop_recommendation_api.py\" \"python ml/price_prediction_api.py\"",
     "start:ml": "concurrently \"python ml/crop_recommendation_api.py\" \"python ml/price_prediction_api.py\""
   },
   "keywords": [],
