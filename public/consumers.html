@@ -306,7 +306,7 @@
 
     const logoutBtn = document.getElementById("logoutBtn");
     logoutBtn.onclick = () => {
-      fetch("http://localhost:5000/logout", { method: "POST", credentials: "include" })
+      fetch(`${API_URL}/logout`, { method: "POST", credentials: "include" })
         .then(() => window.location.href = "login.html");
     };
 
@@ -316,10 +316,10 @@
 
     async function loadConsumerData() {
       try {
-        const resOrders = await fetch("/orders", { credentials: "include" });
+        const resOrders = await fetch(`${API_URL}/orders`, { credentials: "include" });
         const orders = await resOrders.json();
 
-        const resProducts = await fetch("/products", { credentials: "include" });
+        const resProducts = await fetch(`${API_URL}/products`, { credentials: "include" });
         const products = await resProducts.json();
 
         let totalSpent = 0;
@@ -380,7 +380,7 @@
     let username = "";
     let role = "";
 
-    fetch("/api/me", { credentials: "include" })
+    fetch(`${API_URL}/api/me`, { credentials: "include" })
       .then(res => res.json())
       .then(user => {
         username = user.username;
@@ -401,7 +401,9 @@
       chatContainer.style.display = chatContainer.style.display === "none" ? "block" : "none";
     });
 
-    const socket = io("http://localhost:5000");
+    const socket = io(API_URL, {
+  withCredentials: true
+});
 
     socket.on("receiveMessage", ({ from, message }) => {
       const messageElement = document.createElement("div");
