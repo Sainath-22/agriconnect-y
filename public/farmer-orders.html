@@ -289,7 +289,7 @@
     async function fetchOrders() {
       const container = document.getElementById('ordersContainer');
       try {
-        const res = await fetch("http://localhost:5000/api/farmer/orders", {
+        const res = await fetch("https://YOUR-BACKEND.onrender.com/api/farmer/orders", {
           method: "GET",
           credentials: "include"
         });
@@ -340,7 +340,7 @@
             confirmBtn.textContent = "✅ Confirmed";
             document.getElementById(`status-${orderId}`).textContent = "Confirmed";
             try {
-              const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+              const response = await fetch(`https://YOUR-BACKEND.onrender.com/api/orders/${orderId}/status`, {
                 method: "PUT",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -412,13 +412,13 @@
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
-    const socket = io("http://localhost:5000", { withCredentials: true });
+    const socket = io("https://YOUR-BACKEND.onrender.com", { withCredentials: true });
     let currentChatUser = "";
     let currentProductName = "";
     let myUsername = "";
 
     // Get current user
-    fetch("/api/me", { credentials: "include" })
+    fetch("${API_URL}/api/me", { credentials: "include" })
       .then(res => res.json())
       .then(user => {
         myUsername = user.username;
