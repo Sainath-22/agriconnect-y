@@ -711,7 +711,7 @@
       resultCard.classList.remove('show');
 
       try {
-        const response = await fetch('/api/predict-price', {
+        const response = await fetch('https://agriconnect-y.onrender.com/predict', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -781,7 +781,7 @@
     // Load available categories on page load
     async function loadCategories() {
       try {
-        const response = await fetch('http://localhost:5002/categories');
+        const response = await fetch('https://agriconnect-y.onrender.com/categories');
         if (response.ok) {
           const data = await response.json();
           const categorySelect = document.getElementById('category');
